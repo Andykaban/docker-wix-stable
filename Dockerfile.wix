@@ -1,0 +1,27 @@
+FROM ubuntu14.04-wine
+MAINTAINER Andrey Kostrov <ka_ban@rambler.ru>
+
+# Wget is needed by winetricks
+RUN apt-get update
+RUN apt-get install wget
+
+# Create wix environment variables
+ENV HOME /wix
+ENV WINEPREFIX /wix/.wine
+ENV WINEARCH win32
+
+# Create work dir
+RUN mkdir -p /wix/wix
+WORKDIR /wix/wix
+
+# Install .NET Framework 4.0
+RUN wine wineboot && xvfb-run winetricks --unattended dotnet40 corefonts
+
+# Install WiX
+ADD wix38-binaries.zip /wix/wix/wix38-binaries.zip
+RUN unzip /wix/wix/wix38-binaries.zip
+RUN rm /wix/wix/wix38-binaries.zip
+
+# Create symlinks in the home dir
+RUN mkdir -p /home
+RUN ln -s /wix /home
